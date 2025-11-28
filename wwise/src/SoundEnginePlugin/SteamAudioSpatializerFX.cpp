@@ -158,6 +158,9 @@ AKRESULT SteamAudioSpatializerFX::LazyInit()
     auto context = globalState.context.Read();
     auto hrtf = globalState.hrtf.Read();
 
+    if (!context || !hrtf)
+        return AK_NotInitialized;
+
     if (!m_directEffect)
     {
         IPLDirectEffectSettings directEffectSettings{};
@@ -498,7 +501,7 @@ void SteamAudioSpatializerFX::Execute(AkAudioBuffer* in_pBuffer, AkUInt32 in_uIn
 
     // -- apply binaural / panning
 
-	if (m_params->NonRTPC.directBinaural)
+	if (m_params->NonRTPC.directBinaural && !globalState.hrtfDisabled)
     {
         IPLBinauralEffectParams binauralParams{};
         binauralParams.direction = direction;
@@ -547,7 +550,7 @@ void SteamAudioSpatializerFX::Execute(AkAudioBuffer* in_pBuffer, AkUInt32 in_uIn
         {
             IPLAmbisonicsDecodeEffectParams ambisonicsDecodeParams{};
             ambisonicsDecodeParams.order = globalState.simulationSettings.maxOrder;
-            ambisonicsDecodeParams.binaural = m_params->NonRTPC.reflectionsBinaural ? IPL_TRUE : IPL_FALSE;
+            ambisonicsDecodeParams.binaural = (m_params->NonRTPC.reflectionsBinaural && !globalState.hrtfDisabled) ? IPL_TRUE : IPL_FALSE;
             ambisonicsDecodeParams.hrtf = hrtf;
             ambisonicsDecodeParams.orientation = listenerCoords;
 
@@ -567,9 +570,10 @@ void SteamAudioSpatializerFX::Execute(AkAudioBuffer* in_pBuffer, AkUInt32 in_uIn
 
         IPLPathEffectParams pathingParams = sourceOutputs.pathing;
         pathingParams.order = globalState.simulationSettings.maxOrder;
-        pathingParams.binaural = m_params->NonRTPC.pathingBinaural ? IPL_TRUE : IPL_FALSE;
+        pathingParams.binaural = (m_params->NonRTPC.pathingBinaural && !globalState.hrtfDisabled) ? IPL_TRUE : IPL_FALSE;
         pathingParams.hrtf = hrtf;
         pathingParams.listener = listenerCoords;
+        pathingParams.normalizeEQ = m_params->NonRTPC.pathingNormalizeEQ ? IPL_TRUE : IPL_FALSE;
 
         iplPathEffectApply(m_pathingEffect, &pathingParams, &m_monoBuffer, &m_ambisonicsOutBuffer);
 

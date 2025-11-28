@@ -365,6 +365,8 @@ add_library(core OBJECT
     indirect_effect.h
     indirect_effect.cpp
 
+    deviation.h
+    deviation.cpp
     path_visibility.h
     path_visibility.cpp
     path_visibility.fbs
@@ -448,6 +450,12 @@ add_library(core OBJECT
     api_simulator.cpp
     api_advanced_simulation.cpp
     api_validation_layer.cpp
+    api_energy_field.h
+    api_energy_field.cpp
+    api_impulse_response.h
+    api_impulse_response.cpp
+    api_reconstructor.h
+    api_reconstructor.cpp
 )
 
 if (STEAMAUDIO_PROFILING_TOOL STREQUAL "None")
@@ -964,6 +972,7 @@ if (NOT UNREAL_PLUGIN_DIR STREQUAL "")
             COMMAND     ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/phonon_version.h ${UNREAL_INCLUDE_DIR}
             COMMAND     ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/phonon_interfaces.h ${UNREAL_INCLUDE_DIR}
             COMMAND     ${CMAKE_COMMAND} -E copy $<TARGET_FILE:phonon> ${UNREAL_PLUGIN_DIR}
+            COMMAND     ${CMAKE_COMMAND} -E copy $<TARGET_LINKER_FILE:phonon> ${UNREAL_PLUGIN_DIR}
         )
     endif()
 endif()

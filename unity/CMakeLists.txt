@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.17)
 
-project(Phonon VERSION 4.6.1)
+project(Phonon VERSION 4.8.0)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH "${CMAKE_HOME_DIRECTORY}/build")
@@ -171,6 +171,9 @@ endif()
 if (IPL_OS_ANDROID)
     add_compile_options(-fPIC -g $<$<CONFIG:Release>:-O3>)
     add_link_options(-static-libstdc++)
+
+    # Enable 16 KB page size support. (https://developer.android.com/about/versions/15/behavior-changes-all#16-kb)
+    add_link_options("-Wl,-z,max-page-size=16384")
 endif()
 
 # iOS flags
@@ -191,9 +194,14 @@ find_package(Unity REQUIRED)
 
 find_package(SteamAudio REQUIRED)
 
+include(SteamAudioHelpers)
 if (STEAMAUDIOUNITY_BUILD_DOCS)
+    get_host_bin_subdir(IPL_BIN_SUBDIR)
+    set(Doxygen_ROOT ${CMAKE_HOME_DIRECTORY}/../core/deps/doxygen/bin/${IPL_BIN_SUBDIR})
+    set(DOXYGEN_SKIP_DOT TRUE)
+    find_package(Doxygen)
     find_package(Sphinx)
-    if (NOT Sphinx_FOUND)
+    if (NOT DOXYGEN_FOUND OR NOT Sphinx_FOUND)
         message(STATUS "Disabling docs")
         set(STEAMAUDIOUNITY_BUILD_DOCS OFF)
     endif()

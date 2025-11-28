@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.17)
 
-project(Phonon VERSION 4.6.1)
+project(Phonon VERSION 4.8.0)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH "${CMAKE_HOME_DIRECTORY}/build")
@@ -173,6 +173,9 @@ endif()
 if (IPL_OS_WASM)
     add_compile_options(-msimd128 -mfpu=neon)
     add_link_options(-sALLOW_MEMORY_GROWTH=1 -sSINGLE_FILE=1)
+
+    # Enable 16 KB page size support. (https://developer.android.com/about/versions/15/behavior-changes-all#16-kb)
+    add_link_options("-Wl,-z,max-page-size=16384")
 endif()
 
 
